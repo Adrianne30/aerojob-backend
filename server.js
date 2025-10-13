@@ -19,6 +19,7 @@ const profileRoutes = require('./routes/profile');
 const { sendMail } = require('./utils/mailer');
 
 const app = express();
+app.set('trust proxy', 1);
 
 /* ----------------------------- Security & Logging ----------------------------- */
 app.use(helmet({ crossOriginResourcePolicy: false }));
