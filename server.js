@@ -33,7 +33,10 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5173',
   'https://localhost:3000',
   'https://127.0.0.1:3000',
+  'https://aerojob.space',             // ✅ your live frontend
+  'https://www.aerojob.space',        // ✅ optional (www redirect)
 ];
+
 const corsOptions = {
   origin(origin, cb) {
     if (!origin) return cb(null, true);
