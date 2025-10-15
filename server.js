@@ -46,7 +46,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'], // ✅ ensure JWT allowed
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
@@ -150,7 +150,6 @@ function requireAdmin(req, res, next) {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', profileRoutes);
 
-/* ✅ NEW: /api/auth/me route — keeps you logged in on refresh */
 app.get('/api/auth/me', requireAuth, asyncH(async (req, res) => {
   const user = await User.findById(req.userId).select('-password');
   if (!user) return res.status(404).json({ error: 'User not found' });
@@ -695,6 +694,18 @@ api.post(
 
 /* ------------------------------- Mount & Guards ------------------------------ */
 app.use('/api', api);
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendPath = path.join(__dirname, "../frontend/dist"); // or "../frontend/build" if CRA
+app.use(express.static(frontendPath));
+
+app.get("*", (req, res) => {
+  if (req.originalUrl.startsWith("/api")) return res.status(404).json({ error: "API route not found" });
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
 
 // API 404 guard
 app.use('/api', (req, res) => {
