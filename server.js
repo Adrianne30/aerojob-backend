@@ -33,8 +33,8 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5173',
   'https://localhost:3000',
   'https://127.0.0.1:3000',
-  'https://aerojob.space',             // ✅ your live frontend
-  'https://www.aerojob.space',        // ✅ optional (www redirect)
+  'https://aerojob.space',
+  'https://www.aerojob.space',
 ];
 
 const corsOptions = {
@@ -46,7 +46,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization'], // ✅ ensure JWT allowed
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
@@ -149,6 +149,13 @@ function requireAdmin(req, res, next) {
 /* ------------------------------ Mount /api/auth & /api/profile ------------------- */
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', profileRoutes);
+
+/* ✅ NEW: /api/auth/me route — keeps you logged in on refresh */
+app.get('/api/auth/me', requireAuth, asyncH(async (req, res) => {
+  const user = await User.findById(req.userId).select('-password');
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  res.json(user);
+}));
 
 /* --------------------------- File Upload: Company Logo ----------------------- */
 const UPLOAD_ROOT = path.join(__dirname, 'uploads');
